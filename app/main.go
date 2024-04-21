@@ -2,94 +2,94 @@
 package main
 
 import (
-    "os"
 	"bufio"
+    "io"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
-    s "strings"
 	"math/rand"
+	"os"
+	s "strings"
 	"time"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Inputs struct {
-    lang string
-    tense string
-    seconds int
-    keepVosotros bool
+type User struct {
+    Language string `json:"language"`
+    Tense string `json:"tense"`
+    Seconds int `json:"seconds"`
+    Pronouns map[string]bool `json:"pronouns"`
+}
+
+func readUser(path string) User {
+    file, err := os.Open(path)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    defer file.Close()
+
+    bytes, _ := io.ReadAll(file)
+
+    var user User
+    json.Unmarshal(bytes, &user)
+    return user
 }
 
 func main() {
-    var inputs = Inputs{
-        "spanish",
-        "present",
-        60,
-        true,
-    }
-
-    verbs := queryData(inputs.lang, inputs.tense)
-
+    user := readUser("../data/user.json")
+    verbs := queryData(user.Language, user.Tense)
     haveTime := make(chan bool)
-    duration := time.Duration(inputs.seconds) * time.Second
-
     count := 0
+
     fmt.Printf("\n\033[F")
 
-    go timer(haveTime, duration)
-    go game(&count, verbs)
-
+    go timer(haveTime, user.Seconds)
+    go game(&count, verbs, user.Pronouns)
     <- haveTime
 
-    wpm := int(count * inputs.seconds / 60)
+    wpm := int(float32(count) / float32(user.Seconds) * 60)
     fmt.Printf("\r\033[K")
-    fmt.Printf("Completed %d in %d seconds. %d words per minute.", count, inputs.seconds, wpm)
+    fmt.Printf("Completed %d in %d seconds. %d words per minute.", count, user.Seconds, wpm)
 }
 
-func timer(timer chan<- bool, duration time.Duration) {
+func timer(timer chan<- bool, seconds int) {
+    duration := time.Duration(seconds) * time.Second
     time.Sleep(duration)
     timer <- true
 }
 
-func game(count *int, verbs []map[string]string) {
+func game(count *int, verbs []map[string]string, keepPronouns map[string]bool) {
 
-    povs := [6]string {
-        "first_single",
-        "first_plural",
-        "second_single",
-        "second_plural",
-        "third_single",
-        "third_plural",
+    var povs []string
+
+    for pronoun, keepPronoun := range keepPronouns {
+        if keepPronoun { povs = append(povs, pronoun) }
     }
 
-    pronouns := map[string][3]string{
-        "first_single": {"yo"},
-        "first_plural": {"nosotros"},
+    pronouns := map[string][]string{
+        "first_single":  {"yo"},
+        "first_plural":  {"nosotros"},
         "second_single": {"tu"},
         "second_plural": {"vosotros"},
-        "third_single": {"él", "ella", "usted"},
-        "third_plural": {"ellos", "ellas", "ustedes"},
+        "third_single":  {"él", "ella", "usted"},
+        "third_plural":  {"ellos", "ellas", "ustedes"},
     }
 
     for {
         idxVerb := rand.Int() % len(verbs)
-        idxTense := rand.Int() % len(povs)
+        idxPov := rand.Int() % len(povs)
+
         verb := verbs[idxVerb]
-        pov := povs[idxTense]
-        pronoun := getPronoun(pronouns, pov)
+        pov := povs[idxPov]
+        idxPronoun := rand.Int() % len(pronouns[pov])
+        pronoun := pronouns[pov][idxPronoun]
 
         if round(verb, pov, pronoun) {
             *count++
         }
     }
-}
-
-func getPronoun(pronouns map[string][3]string, pov string) string {
-    if pov == "third_single" || pov == "third_plural" {
-        idx := rand.Int() % 3
-        return pronouns[pov][idx]
-    }
-    return pronouns[pov][0]
 }
 
 func round(verb map[string]string, pov string, pronoun string) bool {
@@ -105,10 +105,14 @@ func round(verb map[string]string, pov string, pronoun string) bool {
         fmt.Printf("\033[F\033[K")
 
         switch s.ToLower(input) {
-            case s.ToLower(verb[pov]): return true
+            case s.ToLower(verb[pov]): {
+                playAudio(".\\resources\\pass.mp3")
+                return true
+            }
             case "": return false
         }
 
+        playAudio(".\\resources\\fail.mp3")
         fmt.Printf(prompt)
     }
     return false
@@ -129,7 +133,10 @@ func queryData(lang string, tense string) []map[string]string {
 
     var verbs []map[string]string
 
-    rows, err := db.Query(fmt.Sprintf("SELECT * FROM %s", tense))
+
+    rows, err := db.Query(fmt.Sprintf(
+        `SELECT infinitive, meaning, first_single, first_plural,
+        second_single, second_plural, third_single, third_plural FROM %s`, tense))
     if err != nil {
         log.Fatal(err)
     }
@@ -153,10 +160,10 @@ func queryData(lang string, tense string) []map[string]string {
             &tempStore.infinitive,
             &tempStore.meaning,
             &tempStore.first_single,
-            &tempStore.second_single,
-            &tempStore.third_single,
             &tempStore.first_plural,
+            &tempStore.second_single,
             &tempStore.second_plural,
+            &tempStore.third_single,
             &tempStore.third_plural,
         ); err != nil {
             log.Fatal(err)
