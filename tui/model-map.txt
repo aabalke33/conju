@@ -1,0 +1,15 @@
+
+
+Models:
+Main (q)
+    Setting (tabs)
+        Language Selection
+        Tense Selection
+        Duration Selection
+        Confirmation
+    Game Model (tabs)
+        Rounds
+
+
+Possible things to add
+- For user, keep track of word that you get wrong the most
