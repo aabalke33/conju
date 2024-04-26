@@ -3,9 +3,14 @@
 # Work in Progress, do not touch
 
 Practice conjugating words in your desired language.
-Built with golang, ffmpeg, and sqlite
+Built with golang, ffmpeg, charm/bubbltea and sqlite
 
-Currently, this is bring your own accents! (May implement custom func in future)
+### REQUIRES EXPERIMENTAL VERSION
+Charm's Bubbletea package only supports latin special chars in version
+"github.com/charmbracelet/bubbletea v0.25.1-0.20240422164726-702b43d6b062"
+and later. Assume v0.26.0 will be minimum offical verion required.
+
+Accent Support is provided through your own keyboard configuration.
 
 Current Support:
 1. Supports Spanish Present & Preterite Tense

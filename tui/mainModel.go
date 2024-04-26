@@ -1,6 +1,8 @@
 package main
 
 import (
+	//"strconv"
+
 	tea "github.com/charmbracelet/bubbletea"
 	//"github.com/charmbracelet/lipgloss"
 )
@@ -12,11 +14,18 @@ const (
     gameView
 )
 
+type Game struct {
+    language string
+    tense string
+    duration int
+}
+
 type MainModel struct {
     state mainSessionState
     setting tea.Model
     confirmed bool
-    //game tea.Model
+    gameSettings Game 
+    game tea.Model
     loaded bool
     quitting bool
 }
@@ -24,10 +33,12 @@ type MainModel struct {
 func initialMainModel() *MainModel {
 
     setting := initialSettingModel()
+    var game tea.Model
 
     model := MainModel{
         state: settingView,
         setting: setting,
+        game: game,
     }
     return &model
 }
@@ -65,6 +76,12 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
         if newSettingModel.selectedConfirm != m.confirmed {
             m.confirmed = newSettingModel.selectedConfirm
+
+            m.gameSettings.language = newSettingModel.selectedLanguage
+            m.gameSettings.tense = newSettingModel.selectedTense
+            m.gameSettings.duration = newSettingModel.selectedDuration
+            m.game = initialGameModel(m.gameSettings)
+
             m.state++
         }
 
@@ -72,12 +89,12 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         cmd = newCmd
 
     case gameView:
-//        newTense, newCmd := m.tense.Update(msg)
-//        newTenseModel, ok := newTense.(TenseModel)
-//        
-//        if !ok {
-//            panic("Tense Model assertion failed")
-//        }
+        newGame, newCmd := m.game.Update(msg)
+        newGameModel, ok := newGame.(GameModel)
+        
+        if !ok {
+            panic("Game Model assertion failed")
+        }
 //
 //        if newTenseModel.selected != m.selectedTense {
 //            m.selectedTense = newTenseModel.selected
@@ -90,8 +107,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 //                    m.state++
 //        }
 //
-//        m.tense = newTenseModel
-//        cmd = newCmd
+        m.game = newGameModel
+        cmd = newCmd
     }
 
     cmds = append(cmds, cmd)
@@ -108,6 +125,11 @@ func (m MainModel) View() string {
 
     switch m.state {
     case settingView:  return m.setting.View()
+    case gameView: return m.game.View()
+//        return (
+//        m.gameSettings.language + "\n" +
+//        m.gameSettings.tense + "\n" +
+//        strconv.Itoa(m.gameSettings.duration))
     //case gameView:   return mainContent + applyStyling(m.confirm.View())
     }
     return ""

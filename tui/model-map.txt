@@ -9,7 +9,7 @@ Main (q)
         Confirmation
     Game Model (tabs)
         Rounds
-
+    Performance Model
 
 Possible things to add
 - For user, keep track of word that you get wrong the most
