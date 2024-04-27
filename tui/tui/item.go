@@ -1,16 +1,14 @@
-package main
+package tui
 
 import (
-	//"github.com/charmbracelet/bubbles/help"
 	"fmt"
-    "strings"
-    "io"
+	"io"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/lipgloss"
-
-	//"github.com/charmbracelet/bubbles/key"
+	//"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 var (
@@ -22,9 +20,9 @@ var (
 	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
 )
 
-type item string
+type Item string
 
-func (i item) FilterValue() string { return "" }
+func (i Item) FilterValue() string { return "" }
 
 type itemDelegate struct{}
 
@@ -32,7 +30,7 @@ func (d itemDelegate) Height() int                             { return 1 }
 func (d itemDelegate) Spacing() int                            { return 0 }
 func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
-	i, ok := listItem.(item)
+	i, ok := listItem.(Item)
 	if !ok {
 		return
 	}

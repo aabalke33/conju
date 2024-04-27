@@ -1,20 +1,20 @@
 package main
 
 import (
+	"conju/tui"
 	"fmt"
-	"os"
 	tea "github.com/charmbracelet/bubbletea"
+	"os"
 )
 
-var m *MainModel
-//var m *GameModel
+
+var m *tui.MainModel
 
 func main() {
-    m = initialMainModel()
-    //m = initialGameModel(Game{"spanish", "present", 3})
-    p := tea.NewProgram(m, tea.WithAltScreen())
-    if _, err := p.Run(); err != nil {
-        fmt.Println(err)
-        os.Exit(1)
-    }
+	m = tui.InitialMainModel()
+	p := tea.NewProgram(m, tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
