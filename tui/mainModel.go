@@ -1,10 +1,9 @@
 package main
 
 import (
-	//"strconv"
+	//"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-	//"github.com/charmbracelet/lipgloss"
 )
 
 type mainSessionState int
@@ -12,6 +11,7 @@ type mainSessionState int
 const (
     settingView mainSessionState = iota
     gameView
+    performanceView
 )
 
 type Game struct {
@@ -23,9 +23,10 @@ type Game struct {
 type MainModel struct {
     state mainSessionState
     setting tea.Model
-    confirmed bool
     gameSettings Game 
     game tea.Model
+    count int
+    performance tea.Model
     loaded bool
     quitting bool
 }
@@ -33,12 +34,10 @@ type MainModel struct {
 func initialMainModel() *MainModel {
 
     setting := initialSettingModel()
-    var game tea.Model
 
     model := MainModel{
         state: settingView,
         setting: setting,
-        game: game,
     }
     return &model
 }
@@ -50,19 +49,13 @@ func (m MainModel) Init() tea.Cmd {
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     var cmd tea.Cmd
     var cmds []tea.Cmd
-    switch msg := msg.(type) {
+    switch msg.(type) {
 	case tea.WindowSizeMsg:
 		var cmd tea.Cmd
 		var cmds []tea.Cmd
 		cmds = append(cmds, cmd)
 		m.loaded = true
 		return m, tea.Batch(cmds...)
-    case tea.KeyMsg:
-        switch key := msg.String(); key {
-        case "q":
-			m.quitting = true
-			return m, tea.Quit
-		}
 	}
 
     switch m.state {
@@ -74,15 +67,19 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
             panic("Language Model assertion failed")
         }
 
-        if newSettingModel.selectedConfirm != m.confirmed {
-            m.confirmed = newSettingModel.selectedConfirm
+        if newSettingModel.selectedConfirm {
 
-            m.gameSettings.language = newSettingModel.selectedLanguage
-            m.gameSettings.tense = newSettingModel.selectedTense
-            m.gameSettings.duration = newSettingModel.selectedDuration
+            m.gameSettings = Game{
+                language: newSettingModel.selectedLanguage,
+                tense: newSettingModel.selectedTense,
+                duration: newSettingModel.selectedDuration,
+            }
             m.game = initialGameModel(m.gameSettings)
+            m.state = gameView
 
-            m.state++
+            m.setting = newSettingModel
+            cmd = newCmd
+            return m, cmd
         }
 
         m.setting = newSettingModel
@@ -90,24 +87,33 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     case gameView:
         newGame, newCmd := m.game.Update(msg)
-        newGameModel, ok := newGame.(GameModel)
+        gameModel, ok := newGame.(GameModel)
         
         if !ok {
             panic("Game Model assertion failed")
         }
-//
-//        if newTenseModel.selected != m.selectedTense {
-//            m.selectedTense = newTenseModel.selected
-//            m.state++
-//        } else {
-//            switch msg := msg.(type) {
-//            case tea.KeyMsg:
-//                switch key := msg.String(); key {
-//                case "enter":
-//                    m.state++
-//        }
-//
-        m.game = newGameModel
+
+        if gameModel.completed {
+            m.count = gameModel.count
+            m.performance = *initialPerformanceModel(m.gameSettings, m.count)
+            m.state = performanceView
+        }
+
+        m.game = gameModel
+        cmd = newCmd
+        cmds = append(cmds, cmd)
+        return m, tea.Batch(cmds...)
+
+
+    case performanceView:
+        newPerformance, newCmd := m.performance.Update(msg)
+        newPerformanceModel, ok := newPerformance.(PerformanceModel)
+        
+        if !ok {
+            panic("Performance Model assertion failed")
+        }
+
+        m.performance = newPerformanceModel
         cmd = newCmd
     }
 
@@ -124,13 +130,9 @@ func (m MainModel) View() string {
     }
 
     switch m.state {
-    case settingView:  return m.setting.View()
-    case gameView: return m.game.View()
-//        return (
-//        m.gameSettings.language + "\n" +
-//        m.gameSettings.tense + "\n" +
-//        strconv.Itoa(m.gameSettings.duration))
-    //case gameView:   return mainContent + applyStyling(m.confirm.View())
+        case settingView:       return m.setting.View()
+        case gameView:          return m.game.View()
+        case performanceView:   return m.performance.View()
     }
     return ""
 }

@@ -11,17 +11,22 @@ import (
 )
 
 type GameModel struct {
-    verbs []map[string]string
-    language string
-    tense string
-    timer timer.Model
-    round tea.Model
-    count int
+    verbs       []map[string]string
+    language    string
+    tense       string
+    timer       timer.Model
+    round       tea.Model
+    count       int
+    loaded      bool
+    completed   bool
 }
 
 func initialGameModel(game Game) *GameModel {
-    verbs := utils.QueryData(game.language, game.tense)
+
     timeout := time.Duration(game.duration) * time.Minute
+    timer := timer.NewWithInterval(timeout, time.Second)
+
+    verbs := utils.QueryData(game.language, game.tense)
     verb, pov, pronoun := setupRound(verbs)
     round := initialRoundModel(verb, pov, pronoun)
 
@@ -29,7 +34,7 @@ func initialGameModel(game Game) *GameModel {
         verbs: verbs,
         language: game.language,
         tense: game.tense,
-        timer: timer.NewWithInterval(timeout, time.Second),
+        timer: timer, 
         round: round,
         count: 0,
     }
@@ -38,12 +43,17 @@ func initialGameModel(game Game) *GameModel {
 }
 
 func (m GameModel) Init() tea.Cmd {
-    return m.timer.Init()
+    return nil
 }
 
 func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     var cmd tea.Cmd
     var cmds []tea.Cmd
+
+    m.timer, cmd = m.timer.Update(msg)
+    cmds = append(cmds, cmd)
+
+
     switch msg := msg.(type) {
     case timer.TickMsg:
         m.timer, cmd = m.timer.Update(msg)
@@ -66,7 +76,8 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
     if m.timer.Timedout() {
-        return m, tea.Quit
+        m.completed = true
+        return m, cmd
     }
 
     newRound, newCmd := m.round.Update(msg)

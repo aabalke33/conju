@@ -24,6 +24,7 @@ type SettingModel struct {
     selectedTense string
     selectedDuration int
     selectedConfirm bool
+    quitting bool
 }
 
 func initialSettingModel() *SettingModel {
@@ -64,6 +65,9 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
                 m.state++
             }
             return m, nil
+        case "q":
+            m.quitting = true
+			return m, tea.Quit
         }
 	}
 
@@ -150,6 +154,9 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m SettingModel) View() string {
+    if m.quitting {
+        return ""
+    }
     mainContent := (
         "Conju - Language Conjugation App\n")
 
