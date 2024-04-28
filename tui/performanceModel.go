@@ -52,15 +52,12 @@ func (m PerformanceModel) View() string {
 
 	applyStyling := func(childElement string) (formatted string) {
 		return lipgloss.NewStyle().
-			Width(40).
-			Height(20).
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("8")).
+			//BorderForeground(lipgloss.Color("8")).
 			Render(childElement)
 	}
 
 	output := fmt.Sprintf(
-		"Completed %s - %s Test.\n%d Minutes\n%d Answered\n%d Per Minute",
+		"Completed.\n%s - %s Test.\n%d Minutes\n%d Answered\n%d Per Minute",
 		m.game.language, m.game.tense, m.game.duration, m.count, m.wpm)
 
 	return applyStyling(output)

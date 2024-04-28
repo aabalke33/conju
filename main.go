@@ -7,7 +7,6 @@ import (
 	"os"
 )
 
-
 var m *tui.MainModel
 
 func main() {

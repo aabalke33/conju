@@ -2,6 +2,7 @@ package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type mainSessionState int
@@ -19,6 +20,8 @@ type Game struct {
 }
 
 type MainModel struct {
+	width        int
+	height       int
 	state        mainSessionState
 	setting      tea.Model
 	gameSettings Game
@@ -44,8 +47,10 @@ func (m MainModel) Init() tea.Cmd {
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
-	switch msg.(type) {
+	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
 		var cmd tea.Cmd
 		var cmds []tea.Cmd
 		cmds = append(cmds, cmd)
@@ -116,15 +121,39 @@ func (m MainModel) View() string {
 		return "loading..."
 	}
 
-	mainContent := ("Conju - Language Conjugation App\n")
+	title := ("Conju - Language Conjugation App")
+    header := lipgloss.NewStyle().
+			BorderStyle(lipgloss.NormalBorder()).
+			BorderBottom(true).
+			BorderForeground(lipgloss.Color("8")).
+			Render(title)
+
+	buildView := func(div string) string {
+		dialogBoxStyle := lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("6")).
+			Padding(1, 2).
+			BorderTop(true).
+			BorderLeft(true).
+			BorderRight(true).
+			BorderBottom(true)
+
+		return lipgloss.Place(m.width, m.height,
+			lipgloss.Center, lipgloss.Center,
+			dialogBoxStyle.Render(div),
+			lipgloss.WithWhitespaceChars("充电"),
+			lipgloss.WithWhitespaceForeground(lipgloss.Color("8")),
+		)
+
+	}
 
 	switch m.state {
 	case settingView:
-		return mainContent + m.setting.View()
+		return buildView(header + "\n" + m.setting.View())
 	case gameView:
-		return mainContent + m.game.View()
+		return buildView(header + "\n" + m.game.View())
 	case performanceView:
-		return mainContent + m.performance.View()
+		return buildView(header + "\n" + m.performance.View())
 	}
 	return ""
 }

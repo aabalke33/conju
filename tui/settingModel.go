@@ -159,9 +159,9 @@ func (m SettingModel) View() string {
 
 	applyStyling := func(childElement string) (formatted string) {
 		return lipgloss.NewStyle().
-			Width(40).Height(20).
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("8")).
+			//			Width(40).Height(20).
+			//			Border(lipgloss.RoundedBorder()).
+			//			BorderForeground(lipgloss.Color("8")).
 			Render(childElement)
 	}
 

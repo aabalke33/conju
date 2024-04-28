@@ -9,7 +9,7 @@ import (
 )
 
 func QueryData(lang string, tense string) []map[string]string {
-	connStr := fmt.Sprintf("../data/%s.db", lang)
+	connStr := fmt.Sprintf("./data/%s.db", lang)
 	db, err := sql.Open("sqlite3", connStr)
 	if err != nil {
 		log.Fatal(err)

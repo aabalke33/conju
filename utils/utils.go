@@ -35,4 +35,3 @@ func ChooseVerb(
 
 	return verb, pov, pronoun
 }
-

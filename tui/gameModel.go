@@ -104,16 +104,25 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m GameModel) View() string {
 
+    timerStyled := func() (formatted string) {
+        if m.timer.Timeout.Microseconds() < 30000000 {
+            return lipgloss.NewStyle().
+                Foreground(lipgloss.Color("1")).
+                Render(m.timer.View())
+        }
+
+        return m.timer.View()
+    }
+
+
 	applyStyling := func(childElement string) (formatted string) {
-		return lipgloss.NewStyle().
-			Width(40).Height(20).
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("8")).
-			Render(childElement)
+
+
+		return lipgloss.NewStyle().Render(childElement)
 	}
 
 	output := fmt.Sprintf("%s\n%s\n%s\n%s\nCount %s",
-		m.language, m.tense, m.timer.View(), m.round.View(), strconv.Itoa(m.count))
+		m.language, m.tense, timerStyled(), m.round.View(), strconv.Itoa(m.count))
 
 	return applyStyling(output)
 }

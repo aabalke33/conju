@@ -69,7 +69,7 @@ func (m DurationModel) View() string {
 
 	titleStyle := func(title string) (formatted string) {
 		return lipgloss.NewStyle().
-			Padding(0, 1).
+			//Padding(0, 1).
 			//Background(lipgloss.Color("6")).
 			Foreground(lipgloss.Color("10")).
 			Render(title)
