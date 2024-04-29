@@ -19,9 +19,11 @@ type GameModel struct {
 	count     int
 	loaded    bool
 	completed bool
+	help      HelpModel
+	keys      keyMap
 }
 
-func newGameModel(game Game) *GameModel {
+func newGameModel(width int, game Game) *GameModel {
 
 	timeout := time.Duration(game.duration) * time.Minute
 	timer := timer.NewWithInterval(timeout, time.Second)
@@ -29,6 +31,8 @@ func newGameModel(game Game) *GameModel {
 	verbs := utils.QueryData(game.language, game.tense)
 	verb, pov, pronoun := setupRound(verbs)
 	round := initialRoundModel(verb, pov, pronoun)
+	help := NewHelpModel()
+	help.Width = width
 
 	model := GameModel{
 		verbs:    verbs,
@@ -37,6 +41,8 @@ func newGameModel(game Game) *GameModel {
 		timer:    timer,
 		round:    round,
 		count:    0,
+		help:     help,
+		keys:     gameKeys,
 	}
 
 	return &model
@@ -64,10 +70,12 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch key := msg.String(); key {
 		case "ctrl+c":
 			return m, tea.Quit
-
 		case "tab":
 			verb, pov, pronoun := setupRound(m.verbs)
 			m.round = initialRoundModel(verb, pov, pronoun)
+			return m, cmd
+		case "?":
+			m.help.ShowAll = !m.help.ShowAll
 			return m, cmd
 		}
 	}
@@ -76,10 +84,9 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.completed = true
 		return m, cmd
 	}
-
 	if !m.loaded {
 		m.loaded = true
-		return m, m.timer.Init()
+		cmds = append(cmds, m.timer.Init())
 	}
 
 	newRound, newCmd := m.round.Update(msg)
@@ -104,19 +111,19 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m GameModel) View() string {
 
-    timerStyled := func() (formatted string) {
-        if m.timer.Timeout.Microseconds() < 30000000 {
-            return lipgloss.NewStyle().
-                Foreground(lipgloss.Color("1")).
-                Render(m.timer.View())
-        }
+	timerStyled := func() (formatted string) {
+		if m.timer.Timeout.Microseconds() < 30000000 {
+			return lipgloss.NewStyle().
+				Foreground(lipgloss.Color("1")).
+				Render(m.timer.View())
+		}
 
-        return m.timer.View()
-    }
+		return m.timer.View()
+	}
 
+	helpView := helpStyle.Render(m.help.View(m.keys))
 
 	applyStyling := func(childElement string) (formatted string) {
-
 
 		return lipgloss.NewStyle().Render(childElement)
 	}
@@ -124,7 +131,7 @@ func (m GameModel) View() string {
 	output := fmt.Sprintf("%s\n%s\n%s\n%s\nCount %s",
 		m.language, m.tense, timerStyled(), m.round.View(), strconv.Itoa(m.count))
 
-	return applyStyling(output)
+	return applyStyling(output + "\n" + helpView)
 }
 
 func setupRound(verbs []map[string]string) (verb map[string]string, pov, pronoun string) {

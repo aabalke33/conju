@@ -1,17 +1,12 @@
 package tui
 
 import (
-	//"fmt"
 	"fmt"
 	"strconv"
 
-	//"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
-	//"github.com/charmbracelet/lipgloss"
-	//"github.com/charmbracelet/bubbles/help"
-	//"github.com/charmbracelet/bubbles/key"
 )
 
 type ConfirmModel struct {
@@ -21,12 +16,11 @@ type ConfirmModel struct {
 	duration  int
 }
 
-func initialConfirmModel() *ConfirmModel {
-
+func initialConfirmModel(language, tense string, duration int) *ConfirmModel {
 	model := ConfirmModel{
-		language: "",
-		tense:    "",
-		duration: 0,
+		language: language,
+		tense:    tense,
+		duration: duration,
 	}
 	return &model
 }
@@ -46,19 +40,10 @@ func (m ConfirmModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	//m.options, cmd = m.options.Update(msg)
 	return m, cmd
 }
 
 func (m ConfirmModel) View() string {
-
-	//    titleStyle := func (title string) (formatted string) {
-	//        return lipgloss.NewStyle().
-	//            Padding(0, 1).
-	//            //Background(lipgloss.Color("6")).
-	//            Foreground(lipgloss.Color("10")).
-	//            Render(title)
-	//    }
 
 	rows := [][]string{
 		{"Language", m.language},
@@ -68,5 +53,10 @@ func (m ConfirmModel) View() string {
 
 	t := table.New().Rows(rows...).Border(lipgloss.HiddenBorder())
 
-	return fmt.Sprintf("Are these settings correct?\n%s\nPress enter to confirm.", t)
+	enter := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("2")).
+		Italic(true).Bold(true).
+		Render("enter")
+
+	return fmt.Sprintf("Are these settings correct?\n%s\nPress %s to confirm.", t, enter)
 }

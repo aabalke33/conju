@@ -20,11 +20,8 @@ Roadmap:
     a. with and without vosotros form
     b. Include pronouns
     c. include tenses
-    d. Change the time commit
-    e. Make pretty with Bubbletea
     f. Store User Info for data pages
 3. Replace hard coded Languages, Tenses, and pronouns
-4. Fix bug with firs tinput not working in game model
 
 Development:
 1. Create Local DB for language.

@@ -13,7 +13,7 @@ type RoundModel struct {
 	pov     string
 	pronoun string
 	pass    bool
-    fail     bool
+	fail    bool
 	input   textinput.Model
 }
 
@@ -49,7 +49,7 @@ func (m RoundModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.pass = true
 			} else {
 				utils.PlayAudio("./utils/resources/fail.mp3")
-                m.fail = true
+				m.fail = true
 				return m, cmd
 			}
 		}
@@ -64,13 +64,13 @@ func (m RoundModel) View() string {
 
 	applyStyling := func(childElement string) (formatted string) {
 
-        if m.fail {
-            return lipgloss.NewStyle().
-                Width(30).
-                Border(lipgloss.RoundedBorder()).
-                BorderForeground(lipgloss.Color("1")).
-                Render(childElement)
-        }
+		if m.fail {
+			return lipgloss.NewStyle().
+				Width(30).
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(lipgloss.Color("1")).
+				Render(childElement)
+		}
 
 		return lipgloss.NewStyle().
 			Width(30).

@@ -24,22 +24,28 @@ type SettingModel struct {
 	selectedTense    string
 	selectedDuration int
 	selectedConfirm  bool
+	help             HelpModel
+	keys             keyMap
 	quitting         bool
 }
 
-func NewSettingsModel() *SettingModel {
+func NewSettingsModel(width int) *SettingModel {
 
 	language := initialLanguageModel()
 	tense := initialTenseModel()
 	duration := initialDurationModel()
-	confirm := initialConfirmModel()
+	//confirm := initialConfirmModel()
+	help := NewHelpModel()
+	help.Width = width
 
 	model := SettingModel{
 		state:    languageView,
 		language: language,
 		tense:    tense,
 		duration: duration,
-		confirm:  confirm,
+		//confirm:  confirm,
+		help: help,
+		keys: settingKeys,
 	}
 
 	return &model
@@ -65,6 +71,8 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.state++
 			}
 			return m, nil
+		case "?":
+			m.help.ShowAll = !m.help.ShowAll
 		case "q", "ctrl+c":
 			m.quitting = true
 			return m, tea.Quit
@@ -73,6 +81,7 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.state {
 	case languageView:
+		m.keys = settingKeys
 		newLanguage, newCmd := m.language.Update(msg)
 		newLanguageModel, ok := newLanguage.(LanguageModel)
 
@@ -89,6 +98,7 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = newCmd
 
 	case tenseView:
+		m.keys = settingKeys
 		newTense, newCmd := m.tense.Update(msg)
 		newTenseModel, ok := newTense.(TenseModel)
 
@@ -105,6 +115,7 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = newCmd
 
 	case durationView:
+		m.keys = settingKeys
 		newDuration, newCmd := m.duration.Update(msg)
 		newDurationModel, ok := newDuration.(DurationModel)
 
@@ -114,6 +125,13 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		if newDurationModel.value != m.selectedDuration {
 			m.selectedDuration = newDurationModel.value
+
+			m.confirm = initialConfirmModel(
+				m.selectedLanguage,
+				m.selectedTense,
+				m.selectedDuration,
+			)
+
 			m.state++
 		}
 
@@ -121,6 +139,7 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = newCmd
 
 	case confirmView:
+		m.keys = confirmKeys
 		newConfirm, newCmd := m.confirm.Update(msg)
 		newConfirmModel, ok := newConfirm.(ConfirmModel)
 
@@ -158,11 +177,8 @@ func (m SettingModel) View() string {
 	}
 
 	applyStyling := func(childElement string) (formatted string) {
-		return lipgloss.NewStyle().
-			//			Width(40).Height(20).
-			//			Border(lipgloss.RoundedBorder()).
-			//			BorderForeground(lipgloss.Color("8")).
-			Render(childElement)
+		helpView := helpStyle.Render(m.help.View(m.keys))
+		return lipgloss.NewStyle().Render(childElement + "\n" + helpView)
 	}
 
 	switch m.state {

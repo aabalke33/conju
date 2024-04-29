@@ -24,18 +24,17 @@ type MainModel struct {
 	height       int
 	state        mainSessionState
 	setting      tea.Model
-	gameSettings Game
 	game         tea.Model
-	count        int
 	performance  tea.Model
+	gameSettings Game
+	count        int
 	loaded       bool
 	quitting     bool
 }
 
 func InitialMainModel() *MainModel {
 	model := MainModel{
-		state:   settingView,
-		setting: NewSettingsModel(),
+		state: settingView,
 	}
 	return &model
 }
@@ -54,6 +53,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var cmd tea.Cmd
 		var cmds []tea.Cmd
 		cmds = append(cmds, cmd)
+		m.setting = NewSettingsModel(m.width)
 		m.loaded = true
 		return m, tea.Batch(cmds...)
 	}
@@ -73,7 +73,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				tense:    settingModel.selectedTense,
 				duration: settingModel.selectedDuration,
 			}
-			m.game = *newGameModel(m.gameSettings)
+			m.game = *newGameModel(m.width, m.gameSettings)
 			m.state = gameView
 		}
 
@@ -90,7 +90,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		if gameModel.completed {
 			m.count = gameModel.count
-			m.performance = *initialPerformanceModel(m.gameSettings, m.count)
+			m.performance = *initialPerformanceModel(m.width, m.gameSettings, m.count)
 			m.state = performanceView
 		}
 
@@ -122,17 +122,17 @@ func (m MainModel) View() string {
 	}
 
 	title := ("Conju - Language Conjugation App")
-    header := lipgloss.NewStyle().
-			BorderStyle(lipgloss.NormalBorder()).
-			BorderBottom(true).
-			BorderForeground(lipgloss.Color("8")).
-			Render(title)
+	header := lipgloss.NewStyle().
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderBottom(true).
+		BorderForeground(lipgloss.Color("8")).
+		Render(title)
 
 	buildView := func(div string) string {
 		dialogBoxStyle := lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("6")).
-			Padding(1, 2).
+			Padding(1, 2, 0).
 			BorderTop(true).
 			BorderLeft(true).
 			BorderRight(true).

@@ -11,16 +11,22 @@ type PerformanceModel struct {
 	count    int
 	wpm      int
 	quitting bool
+	help     HelpModel
+	keys     keyMap
 }
 
-func initialPerformanceModel(game Game, count int) *PerformanceModel {
+func initialPerformanceModel(width int, game Game, count int) *PerformanceModel {
 
 	wpm := int(float32(count) / float32(game.duration))
+	help := NewHelpModel()
+	help.Width = width
 
 	model := PerformanceModel{
 		game:  game,
 		count: count,
 		wpm:   wpm,
+		help:  help,
+		keys:  performanceKeys,
 	}
 	return &model
 }
@@ -55,10 +61,11 @@ func (m PerformanceModel) View() string {
 			//BorderForeground(lipgloss.Color("8")).
 			Render(childElement)
 	}
+	helpView := helpStyle.Render(m.help.View(m.keys))
 
 	output := fmt.Sprintf(
 		"Completed.\n%s - %s Test.\n%d Minutes\n%d Answered\n%d Per Minute",
 		m.game.language, m.game.tense, m.game.duration, m.count, m.wpm)
 
-	return applyStyling(output)
+	return applyStyling(output + "\n" + helpView)
 }

@@ -1,14 +1,10 @@
 package tui
 
 import (
-	//"fmt"
-	"strconv"
-
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	//"github.com/charmbracelet/bubbles/help"
-	//"github.com/charmbracelet/bubbles/key"
+	"strconv"
 )
 
 type DurationModel struct {
@@ -21,6 +17,7 @@ func initialDurationModel() *DurationModel {
 
 	input := textinput.New()
 	input.Placeholder = "Minutes"
+	input.PlaceholderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
 	input.Focus()
 	input.CharLimit = 2
 	input.Width = 20
@@ -68,11 +65,7 @@ func (m DurationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m DurationModel) View() string {
 
 	titleStyle := func(title string) (formatted string) {
-		return lipgloss.NewStyle().
-			//Padding(0, 1).
-			//Background(lipgloss.Color("6")).
-			Foreground(lipgloss.Color("10")).
-			Render(title)
+		return lipgloss.NewStyle().Render(title)
 	}
 
 	return titleStyle(m.title) + "\n" + m.input.View()

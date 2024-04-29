@@ -2,13 +2,11 @@ package tui
 
 import (
 	"fmt"
-	"io"
-	"strings"
-
 	"github.com/charmbracelet/bubbles/list"
-	//"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"io"
+	"strings"
 )
 
 var (

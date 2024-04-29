@@ -4,8 +4,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	//"github.com/charmbracelet/bubbles/help"
-	//"github.com/charmbracelet/bubbles/key"
 )
 
 type LanguageModel struct {
@@ -16,8 +14,6 @@ type LanguageModel struct {
 
 func initialLanguageModel() *LanguageModel {
 
-	height := 10
-
 	items := []list.Item{
 		Item("Spanish"),
 		Item("German"),
@@ -25,10 +21,15 @@ func initialLanguageModel() *LanguageModel {
 		Item("Russian"),
 		Item("Chinese"),
 	}
+
+	height := len(items)
+
 	options := list.New(items, itemDelegate{}, 0, height)
 	options.SetShowStatusBar(false)
 	options.SetShowTitle(false)
 	options.SetShowHelp(false)
+	options.SetShowPagination(false)
+	options.SetShowFilter(false)
 
 	model := LanguageModel{
 		title:    "Language",
@@ -66,12 +67,8 @@ func (m LanguageModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m LanguageModel) View() string {
 
 	titleStyle := func(title string) (formatted string) {
-		return lipgloss.NewStyle().
-			//Padding(0, 1).
-			//Background(lipgloss.Color("6")).
-			Foreground(lipgloss.Color("10")).
-			Render(title)
+		return lipgloss.NewStyle().Render(title)
 	}
 
-	return titleStyle(m.title) + m.options.View()
+	return titleStyle(m.title) + "\n" + m.options.View()
 }
