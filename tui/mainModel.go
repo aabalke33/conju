@@ -141,7 +141,7 @@ func (m MainModel) View() string {
 		return lipgloss.Place(m.width, m.height,
 			lipgloss.Center, lipgloss.Center,
 			dialogBoxStyle.Render(div),
-			lipgloss.WithWhitespaceChars("充电"),
+			lipgloss.WithWhitespaceChars("言語"),
 			lipgloss.WithWhitespaceForeground(lipgloss.Color("8")),
 		)
 
