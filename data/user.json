@@ -1,7 +1,4 @@
 {
-    "language": "spanish",
-    "tense": "present",
-    "seconds": 180,
     "pronouns": {
         "first_single": true,
         "first_plural": true,

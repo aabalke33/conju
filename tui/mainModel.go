@@ -50,9 +50,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		var cmd tea.Cmd
-		var cmds []tea.Cmd
-		cmds = append(cmds, cmd)
 		m.setting = NewSettingsModel(m.width)
 		m.loaded = true
 		return m, tea.Batch(cmds...)

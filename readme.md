@@ -1,32 +1,67 @@
-# Conju: A Terminal-Based Language Conjugation App
+# Conju: A Terminal-Based Language Learning App
 
-# Work in Progress, do not touch
+Conju is a TUI Language Learning app, currently Supporting language conjugation
+assessments/games.
 
 Practice conjugating words in your desired language.
-Built with golang, ffmpeg, charm/bubbltea and sqlite
+Built with golang, ffmpeg, charm/bubbletea and sqlite
 
-### REQUIRES EXPERIMENTAL VERSION
-Charm's Bubbletea package only supports latin special chars in version
-"github.com/charmbracelet/bubbletea v0.25.1-0.20240422164726-702b43d6b062"
-and later. Assume v0.26.0 will be minimum offical version required.
+## Youtube Breakdown
+[Youtube Video](https://www.youtube.com/watch?v=fB5a8g0nMJY)
 
-Accent Support is provided through your own keyboard configuration.
+## Architecture / Design
 
-Current Support:
-1. Supports Spanish Present & Preterite Tense
+Conju is built using Golang and exports to a binary. The TUI itself uses the
+[Charm Bubbletea TUI framework, and additional libraries lipgloss, and Bubbles](https://github.com/charmbracelet/bubbletea).
+This framework allows easy creation of nested TUI models, one for each view,
+by following the [Elm architecture](https://guide.elm-lang.org/architecture/) for interactuve programs.
 
-Roadmap:
-2. Support Spanish
-    a. with and without vosotros form
-    b. Include pronouns
-    c. include tenses
-    f. Store User Info for data pages
-3. Replace hard coded Languages, Tenses, and pronouns
+### Models
+Main Model: the main model handles the state of the entire app
+    Setting Model: Handles the state of which setting options are selected
+        Language Selection Model
+        Tense Selection Model
+        Duration Input Model
+        Confirmation Model
+    Game Model: Handles the game state, ex. count of correct options
+        Round Model: Repeated randomized model for each verb/conjugation match
+    Performance Model: Final model to display final data to the user
 
-Development:
-1. Create Local DB for language.
-2. Local DB stores user data, ie score, speed, etc and language words
+Scores are exported to ./data/conju.csv, a csv file to keep track of progress for
+personal benchmarking.
 
+### Audio
+Uses ffmpeg/ffplay to play small mp3 files included in the repo for audio feedback during the game.
+This will require ffmpeg is install on the device.
 
-Possiblities: 
-- For user: keep track of word that you get wrong the most
+## Data Storage
+
+Language data is stored in individual sqlite databases in ./data, with tables per language tense.
+Each table then has the following column template:
+
+| infinitve | meaning | conjugation | conjugation... | ... |
+|-----------|---------|-------------|----------------|-----|
+| verb1     |         |             |                |     |
+| ser       |  to be  |    soy      |     eres       | es  |
+
+In many languages, the conjugations will be broken down by pronouns. For example,
+in Spanish, the first/second/third person * single/plural conjugations would follow the meaning column.
+
+## Contributing
+If you would like to contribute language databases, please do! Follow the template
+outlined in the Data Storage section, and check the Spanish.db file for an example.
+
+## Roadmap
+- Move user changeable values to config.json (ex. db directory, sound files, ffmpeg location)
+- Remove hardcoded Spanish language pronouns, will either add to dbs or make a separate file
+- Add Pronoun Setting/Menu Selection
+- Adaptive Color profiles depending on support
+- Add All Spanish Tenses
+- Keep track of the most common mistake words
+- Add preposition options to conjugations
+- Add verb meaning = verb game mode
+
+## Misc Notes
+- Requires Unofficial Bubbletea release for special char support in Windows, see go.mod
+- Special Character support is provided by keyboard configuration and is not built into the app.
+- The archive folder holds previously used SQL Queries to provide an audit trail of db creation.

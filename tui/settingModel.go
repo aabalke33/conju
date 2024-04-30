@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"conju/utils"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -21,6 +22,7 @@ type SettingModel struct {
 	duration         tea.Model
 	confirm          tea.Model
 	selectedLanguage string
+	selectedDb       utils.Database
 	selectedTense    string
 	selectedDuration int
 	selectedConfirm  bool
@@ -31,21 +33,17 @@ type SettingModel struct {
 
 func NewSettingsModel(width int) *SettingModel {
 
-	language := initialLanguageModel()
-	tense := initialTenseModel()
+	language := initialLanguageModel("./data")
 	duration := initialDurationModel()
-	//confirm := initialConfirmModel()
 	help := NewHelpModel()
 	help.Width = width
 
 	model := SettingModel{
 		state:    languageView,
 		language: language,
-		tense:    tense,
 		duration: duration,
-		//confirm:  confirm,
-		help: help,
-		keys: settingKeys,
+		help:     help,
+		keys:     settingKeys,
 	}
 
 	return &model
@@ -61,16 +59,6 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch key := msg.String(); key {
-		case "shift+tab":
-			if m.state > languageView {
-				m.state--
-			}
-			return m, nil
-		case "tab":
-			if m.state < confirmView {
-				m.state++
-			}
-			return m, nil
 		case "?":
 			m.help.ShowAll = !m.help.ShowAll
 		case "q", "ctrl+c":
@@ -89,8 +77,17 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			panic("Language Model assertion failed")
 		}
 
-		if newLanguageModel.selected != m.selectedLanguage {
-			m.selectedLanguage = newLanguageModel.selected
+		selectedItem := string(newLanguageModel.selected)
+
+		if selectedItem != m.selectedLanguage {
+			m.selectedLanguage = selectedItem
+			m.selectedDb = utils.Database{
+				FileName:   newLanguageModel.fileMap[selectedItem],
+				ProperName: selectedItem,
+			}
+
+			m.tense = initialTenseModel(m.selectedDb)
+
 			m.state++
 		}
 

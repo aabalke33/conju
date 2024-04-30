@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"conju/utils"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -12,14 +14,14 @@ type TenseModel struct {
 	options  list.Model
 }
 
-func initialTenseModel() *TenseModel {
+func initialTenseModel(selectedDb utils.Database) *TenseModel {
 
-	items := []list.Item{
-		Item("Present"),
-		Item("Preterite"),
-		Item("Future"),
-		Item("Subjunctive"),
-		Item("Imperfect"),
+	tenses := utils.GetTenses(selectedDb.FileName, "./data")
+
+	var items []list.Item
+
+	for _, tense := range tenses {
+		items = append(items, Item(tense))
 	}
 
 	height := len(items)

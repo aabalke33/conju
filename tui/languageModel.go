@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"conju/utils"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -8,21 +9,27 @@ import (
 
 type LanguageModel struct {
 	title    string
-	selected string
+	selected Item
+	fileMap  map[string]string
 	options  list.Model
 }
 
-func initialLanguageModel() *LanguageModel {
+func initialLanguageModel(directory string) *LanguageModel {
 
-	items := []list.Item{
-		Item("Spanish"),
-		Item("German"),
-		Item("Japanese"),
-		Item("Russian"),
-		Item("Chinese"),
+	languages := utils.GetDatabases(directory)
+
+	var items []list.Item
+	fileMap := make(map[string]string)
+
+	for _, language := range languages {
+
+		item := Item(language.ProperName)
+		items = append(items, item)
+
+		fileMap[language.ProperName] = language.FileName
 	}
 
-	height := len(items)
+	height := len(languages)
 
 	options := list.New(items, itemDelegate{}, 0, height)
 	options.SetShowStatusBar(false)
@@ -35,6 +42,7 @@ func initialLanguageModel() *LanguageModel {
 		title:    "Language",
 		options:  options,
 		selected: "",
+		fileMap:  fileMap,
 	}
 	return &model
 }
@@ -53,7 +61,7 @@ func (m LanguageModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			i, ok := m.options.SelectedItem().(Item)
 			if ok {
-				m.selected = string(i)
+				m.selected = i
 			}
 			return m, nil
 		}

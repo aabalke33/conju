@@ -31,7 +31,7 @@ func Export(data Dump) (exported bool) {
 	currData, err := os.ReadFile(exportPath)
 
 	if err == nil {
-        updatedData = fmt.Sprintf("%s\n%s", string(currData), dataStr)
+		updatedData = fmt.Sprintf("%s\n%s", string(currData), dataStr)
 	} else {
 		headerStr := "time,language,tense,word_per_minute"
 		updatedData = fmt.Sprintf(

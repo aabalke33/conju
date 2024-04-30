@@ -1,7 +1,7 @@
 package tui
 
 import (
-    "conju/utils"
+	"conju/utils"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -11,7 +11,7 @@ type PerformanceModel struct {
 	game     Game
 	count    int
 	wpm      int
-    exported bool
+	exported bool
 	quitting bool
 	help     HelpModel
 	keys     keyMap
@@ -22,20 +22,20 @@ func initialPerformanceModel(width int, game Game, count int) *PerformanceModel 
 	wpm := int(float32(count) / float32(game.duration))
 	help := NewHelpModel()
 	help.Width = width
-    exported := utils.Export(
-        utils.Dump{
-            Language: game.language,
-            Tense: game.tense,
-            Wpm: wpm,
-        })
+	exported := utils.Export(
+		utils.Dump{
+			Language: game.language,
+			Tense:    game.tense,
+			Wpm:      wpm,
+		})
 
 	model := PerformanceModel{
-		game:  game,
-		count: count,
-		wpm:   wpm,
-		help:  help,
-		keys:  performanceKeys,
-        exported: exported,
+		game:     game,
+		count:    count,
+		wpm:      wpm,
+		help:     help,
+		keys:     performanceKeys,
+		exported: exported,
 	}
 	return &model
 }
@@ -71,10 +71,10 @@ func (m PerformanceModel) View() string {
 	}
 	helpView := helpStyle.Render(m.help.View(m.keys))
 
-    exportedText := lipgloss.NewStyle().
-        Italic(true).
-        Foreground(lipgloss.Color("8")).
-        Render("Exported Score to conju.csv")
+	exportedText := lipgloss.NewStyle().
+		Italic(true).
+		Foreground(lipgloss.Color("8")).
+		Render("Exported Score to conju.csv")
 
 	output := fmt.Sprintf(
 		"Completed.\n%s - %s Test.\n%d Minutes\n%d Answered\n%d Per Minute\n%s",

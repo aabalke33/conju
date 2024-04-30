@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
+	s "strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -76,4 +78,68 @@ func QueryData(lang string, tense string) []map[string]string {
 	}
 
 	return verbs
+}
+
+type Database struct {
+	ProperName string
+	FileName   string
+}
+
+func GetDatabases(directory string) (databases []Database) {
+
+	c, err := os.ReadDir("./data")
+
+	if err != nil {
+		panic("Could not read data directory")
+	}
+
+	for _, entry := range c {
+		isDB := s.HasSuffix(entry.Name(), ".db")
+		if isDB {
+			lowerName := s.ToLower(s.Replace(entry.Name(), ".db", "", -1))
+			properName := s.ToUpper(string(lowerName[0])) + lowerName[1:]
+
+			database := Database{
+				ProperName: properName,
+				FileName:   entry.Name(),
+			}
+
+			databases = append(databases, database)
+		}
+	}
+	return
+}
+
+func GetTenses(filename, dataLocation string) (tenses []string) {
+
+	connStr := fmt.Sprintf("%s/%s", dataLocation, filename)
+	db, err := sql.Open("sqlite3", connStr)
+	if err != nil {
+		panic("Could Not Open DB to get Tenses")
+	}
+
+	defer db.Close()
+
+	rows, err := db.Query(fmt.Sprintf(
+		"SELECT name FROM sqlite_master where type='table';"))
+	if err != nil {
+		panic("Could not Query Tenses from DB")
+	}
+
+	defer rows.Close()
+
+	var currTense string
+
+	for rows.Next() {
+		if err := rows.Scan(&currTense); err != nil {
+			panic("Could not Query Tenses in DB")
+		}
+
+		tenses = append(tenses, currTense)
+	}
+	if err := rows.Err(); err != nil {
+		panic("Could not Query Tenses in DB")
+	}
+
+	return
 }
