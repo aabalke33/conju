@@ -16,14 +16,7 @@ func ChooseVerb(
 		}
 	}
 
-	pronouns := map[string][]string{
-		"first_single":  {"yo"},
-		"first_plural":  {"nosotros"},
-		"second_single": {"tu"},
-		"second_plural": {"vosotros"},
-		"third_single":  {"él", "ella", "usted"},
-		"third_plural":  {"ellos", "ellas", "ustedes"},
-	}
+    pronouns := GetPronouns("spanish.db","./data")
 
 	idxVerb := rand.Int() % len(verbs)
 	idxPov := rand.Int() % len(povs)

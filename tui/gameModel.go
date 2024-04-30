@@ -111,8 +111,10 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m GameModel) View() string {
 
+    var thirtySeconds int64 = 30_000_000 
+
 	timerStyled := func() (formatted string) {
-		if m.timer.Timeout.Microseconds() < 30000000 {
+		if m.timer.Timeout.Microseconds() < thirtySeconds {
 			return lipgloss.NewStyle().
 				Foreground(lipgloss.Color("1")).
 				Render(m.timer.View())

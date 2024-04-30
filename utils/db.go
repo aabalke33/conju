@@ -5,13 +5,25 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	s "strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
+//type Database struct {
+//    filepath    string
+//    filename    string
+//
+//}
+
+
 func QueryData(lang string, tense string) []map[string]string {
-	connStr := fmt.Sprintf("./data/%s.db", lang)
+
+    filePath := "./data"
+    filename := "spanish.db"
+
+	connStr := fmt.Sprintf("%s/%s", filePath, filename)
 	db, err := sql.Open("sqlite3", connStr)
 	if err != nil {
 		log.Fatal(err)
@@ -26,50 +38,48 @@ func QueryData(lang string, tense string) []map[string]string {
 	var verbs []map[string]string
 
 	rows, err := db.Query(fmt.Sprintf(
-		`SELECT infinitive, meaning, first_single, first_plural,
-         second_single, second_plural, third_single, third_plural FROM %s`, tense))
+		`SELECT * FROM %s`, tense))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer rows.Close()
 
-	type VerbTemp struct {
-		infinitive    string
-		meaning       string
-		first_single  string
-		first_plural  string
-		second_single string
-		second_plural string
-		third_single  string
-		third_plural  string
-	}
+    var values []interface{}
+
+    columns, err := rows.Columns()
+    if err != nil {
+        panic("Could not get language columns")
+    }
+
+    for range columns {
+        var i interface{}
+        values = append(values, &i)
+    }
 
 	for rows.Next() {
-		var tempStore VerbTemp
-		if err := rows.Scan(
-			&tempStore.infinitive,
-			&tempStore.meaning,
-			&tempStore.first_single,
-			&tempStore.first_plural,
-			&tempStore.second_single,
-			&tempStore.second_plural,
-			&tempStore.third_single,
-			&tempStore.third_plural,
-		); err != nil {
+
+        verb := make(map[string]string)
+
+		if err := rows.Scan(values...); err != nil {
 			log.Fatal(err)
 		}
 
-		verb := map[string]string{
-			"infinitive":    tempStore.infinitive,
-			"meaning":       tempStore.meaning,
-			"first_single":  tempStore.first_single,
-			"first_plural":  tempStore.first_plural,
-			"second_single": tempStore.second_single,
-			"second_plural": tempStore.second_plural,
-			"third_single":  tempStore.third_single,
-			"third_plural":  tempStore.third_plural,
-		}
+        for i, values := range values {
+
+            deRefV := reflect.ValueOf(values).Elem().Interface()
+
+            switch v := deRefV.(type) {
+            case nil:
+                verb[columns[i]] = "NULL"
+            case []byte:
+                verb[columns[i]] = string(v)
+            case string:
+                verb[columns[i]] = v
+            default:
+                verb[columns[i]] = fmt.Sprintf("%v", v)
+            }
+        }
 
 		verbs = append(verbs, verb)
 	}
@@ -135,11 +145,57 @@ func GetTenses(filename, dataLocation string) (tenses []string) {
 			panic("Could not Query Tenses in DB")
 		}
 
-		tenses = append(tenses, currTense)
+        if currTense != "pronouns" {
+            tenses = append(tenses, currTense)
+        }
 	}
 	if err := rows.Err(); err != nil {
 		panic("Could not Query Tenses in DB")
 	}
 
 	return
+}
+
+func GetPronouns(filename, filePath string) (map[string][]string) {
+
+	connStr := fmt.Sprintf("%s/%s", filePath, filename)
+	db, err := sql.Open("sqlite3", connStr)
+	if err != nil {
+		panic("Could Not Open DB to get Pronouns")
+	}
+
+	defer db.Close()
+
+	if err = db.Ping(); err != nil {
+        panic("Could not ping db")
+	}
+
+	rows, err := db.Query("SELECT pronoun, conjugation FROM pronouns")
+	if err != nil {
+		panic("Could not Query Pronouns from DB 1")
+	}
+
+	defer rows.Close()
+
+    var pronouns = make(map[string][]string)
+
+    type PronounSet struct {
+        Pronoun string
+        Conjugation string
+    }
+
+    var curr PronounSet
+
+	for rows.Next() {
+		if err := rows.Scan(&curr.Pronoun, &curr.Conjugation); err != nil {
+			panic("Could not Query Pronouns in DB 2")
+		}
+
+        pronouns[curr.Conjugation] = append(pronouns[curr.Conjugation], curr.Pronoun)
+	}
+	if err := rows.Err(); err != nil {
+		panic("Could not Query Pronouns in DB 3")
+	}
+
+	return pronouns
 }
