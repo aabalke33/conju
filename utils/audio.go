@@ -5,9 +5,9 @@ import (
 	"os/exec"
 )
 
-func PlayAudio(filePath string) {
+func PlayAudio(filePath string, config Config) {
 
-	cmd := "C:\\dev\\sources\\cli\\ffmpeg\\bin\\ffplay.exe"
+	cmd := config.FFPlayLocation
 	args0 := "-autoexit"
 	args1 := "-nodisp"
 	args2 := "-loglevel"

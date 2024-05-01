@@ -11,19 +11,16 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//type Database struct {
-//    filepath    string
-//    filename    string
-//
-//}
+type Database struct {
+	ProperName string
+	LowerName  string
+	Directory  string
+	Basename   string
+}
 
+func (d Database) QueryData(tense string) []map[string]string {
 
-func QueryData(lang string, tense string) []map[string]string {
-
-    filePath := "./data"
-    filename := "spanish.db"
-
-	connStr := fmt.Sprintf("%s/%s", filePath, filename)
+	connStr := fmt.Sprintf("%s/%s", d.Directory, d.Basename)
 	db, err := sql.Open("sqlite3", connStr)
 	if err != nil {
 		log.Fatal(err)
@@ -45,41 +42,41 @@ func QueryData(lang string, tense string) []map[string]string {
 
 	defer rows.Close()
 
-    var values []interface{}
+	var values []interface{}
 
-    columns, err := rows.Columns()
-    if err != nil {
-        panic("Could not get language columns")
-    }
+	columns, err := rows.Columns()
+	if err != nil {
+		panic("Could not get language columns")
+	}
 
-    for range columns {
-        var i interface{}
-        values = append(values, &i)
-    }
+	for range columns {
+		var i interface{}
+		values = append(values, &i)
+	}
 
 	for rows.Next() {
 
-        verb := make(map[string]string)
+		verb := make(map[string]string)
 
 		if err := rows.Scan(values...); err != nil {
 			log.Fatal(err)
 		}
 
-        for i, values := range values {
+		for i, values := range values {
 
-            deRefV := reflect.ValueOf(values).Elem().Interface()
+			deRefV := reflect.ValueOf(values).Elem().Interface()
 
-            switch v := deRefV.(type) {
-            case nil:
-                verb[columns[i]] = "NULL"
-            case []byte:
-                verb[columns[i]] = string(v)
-            case string:
-                verb[columns[i]] = v
-            default:
-                verb[columns[i]] = fmt.Sprintf("%v", v)
-            }
-        }
+			switch v := deRefV.(type) {
+			case nil:
+				verb[columns[i]] = "NULL"
+			case []byte:
+				verb[columns[i]] = string(v)
+			case string:
+				verb[columns[i]] = v
+			default:
+				verb[columns[i]] = fmt.Sprintf("%v", v)
+			}
+		}
 
 		verbs = append(verbs, verb)
 	}
@@ -90,39 +87,9 @@ func QueryData(lang string, tense string) []map[string]string {
 	return verbs
 }
 
-type Database struct {
-	ProperName string
-	FileName   string
-}
+func (d Database) GetTenses() (tenses []string) {
+	connStr := fmt.Sprintf("%s/%s", d.Directory, d.Basename)
 
-func GetDatabases(directory string) (databases []Database) {
-
-	c, err := os.ReadDir("./data")
-
-	if err != nil {
-		panic("Could not read data directory")
-	}
-
-	for _, entry := range c {
-		isDB := s.HasSuffix(entry.Name(), ".db")
-		if isDB {
-			lowerName := s.ToLower(s.Replace(entry.Name(), ".db", "", -1))
-			properName := s.ToUpper(string(lowerName[0])) + lowerName[1:]
-
-			database := Database{
-				ProperName: properName,
-				FileName:   entry.Name(),
-			}
-
-			databases = append(databases, database)
-		}
-	}
-	return
-}
-
-func GetTenses(filename, dataLocation string) (tenses []string) {
-
-	connStr := fmt.Sprintf("%s/%s", dataLocation, filename)
 	db, err := sql.Open("sqlite3", connStr)
 	if err != nil {
 		panic("Could Not Open DB to get Tenses")
@@ -145,9 +112,9 @@ func GetTenses(filename, dataLocation string) (tenses []string) {
 			panic("Could not Query Tenses in DB")
 		}
 
-        if currTense != "pronouns" {
-            tenses = append(tenses, currTense)
-        }
+		if currTense != "pronouns" {
+			tenses = append(tenses, currTense)
+		}
 	}
 	if err := rows.Err(); err != nil {
 		panic("Could not Query Tenses in DB")
@@ -156,9 +123,9 @@ func GetTenses(filename, dataLocation string) (tenses []string) {
 	return
 }
 
-func GetPronouns(filename, filePath string) (map[string][]string) {
+func (d Database) GetPronouns() map[string][]string {
 
-	connStr := fmt.Sprintf("%s/%s", filePath, filename)
+	connStr := fmt.Sprintf("%s/%s", d.Directory, d.Basename)
 	db, err := sql.Open("sqlite3", connStr)
 	if err != nil {
 		panic("Could Not Open DB to get Pronouns")
@@ -167,7 +134,7 @@ func GetPronouns(filename, filePath string) (map[string][]string) {
 	defer db.Close()
 
 	if err = db.Ping(); err != nil {
-        panic("Could not ping db")
+		panic("Could not ping db")
 	}
 
 	rows, err := db.Query("SELECT pronoun, conjugation FROM pronouns")
@@ -177,25 +144,53 @@ func GetPronouns(filename, filePath string) (map[string][]string) {
 
 	defer rows.Close()
 
-    var pronouns = make(map[string][]string)
+	var pronouns = make(map[string][]string)
 
-    type PronounSet struct {
-        Pronoun string
-        Conjugation string
-    }
+	type PronounSet struct {
+		Pronoun     string
+		Conjugation string
+	}
 
-    var curr PronounSet
+	var curr PronounSet
 
 	for rows.Next() {
 		if err := rows.Scan(&curr.Pronoun, &curr.Conjugation); err != nil {
 			panic("Could not Query Pronouns in DB 2")
 		}
 
-        pronouns[curr.Conjugation] = append(pronouns[curr.Conjugation], curr.Pronoun)
+		pronouns[curr.Conjugation] = append(pronouns[curr.Conjugation], curr.Pronoun)
 	}
 	if err := rows.Err(); err != nil {
 		panic("Could not Query Pronouns in DB 3")
 	}
 
 	return pronouns
+}
+
+func GetDatabases(directory string) map[string]Database {
+
+	c, err := os.ReadDir(directory)
+	if err != nil {
+		panic("Could not read data directory")
+	}
+
+	var databases = make(map[string]Database)
+
+	for _, entry := range c {
+		isDB := s.HasSuffix(entry.Name(), ".db")
+		if isDB {
+			lowerName := s.ToLower(s.Replace(entry.Name(), ".db", "", -1))
+			properName := s.ToUpper(string(lowerName[0])) + lowerName[1:]
+
+			database := Database{
+				ProperName: properName,
+				Basename:   entry.Name(),
+				LowerName:  lowerName,
+				Directory:  directory,
+			}
+
+			databases[database.ProperName] = database
+		}
+	}
+	return databases
 }

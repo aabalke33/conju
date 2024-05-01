@@ -1,17 +1,16 @@
 package main
 
 import (
-	 "conju/tui"
-	 "fmt"
-	 "os"
-	
-	 tea "github.com/charmbracelet/bubbletea"
+	"conju/tui"
+	"fmt"
+	"os"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 var m *tui.MainModel
 
 func main() {
-
 
 	m = tui.InitialMainModel()
 	p := tea.NewProgram(m, tea.WithAltScreen())

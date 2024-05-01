@@ -15,9 +15,10 @@ type RoundModel struct {
 	pass    bool
 	fail    bool
 	input   textinput.Model
+	config  utils.Config
 }
 
-func initialRoundModel(verb map[string]string, pov, pronoun string) *RoundModel {
+func initialRoundModel(verb map[string]string, pov, pronoun string, config utils.Config) *RoundModel {
 
 	input := textinput.New()
 	input.Focus()
@@ -29,6 +30,7 @@ func initialRoundModel(verb map[string]string, pov, pronoun string) *RoundModel 
 		pov:     pov,
 		pronoun: pronoun,
 		input:   input,
+		config:  config,
 	}
 
 	return &model
@@ -45,10 +47,10 @@ func (m RoundModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if key := msg.String(); key == "enter" {
 			if match := m.input.Value() == m.verb[m.pov]; match {
-				utils.PlayAudio("./utils/resources/pass.mp3")
+				utils.PlayAudio("./utils/resources/pass.mp3", m.config)
 				m.pass = true
 			} else {
-				utils.PlayAudio("./utils/resources/fail.mp3")
+				utils.PlayAudio("./utils/resources/fail.mp3", m.config)
 				m.fail = true
 				return m, cmd
 			}

@@ -16,7 +16,7 @@ type TenseModel struct {
 
 func initialTenseModel(selectedDb utils.Database) *TenseModel {
 
-	tenses := utils.GetTenses(selectedDb.FileName, "./data")
+	tenses := selectedDb.GetTenses()
 
 	var items []list.Item
 

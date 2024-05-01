@@ -5,7 +5,7 @@ import (
 )
 
 func ChooseVerb(
-	verbs []map[string]string, keepPronouns map[string]bool) (
+	verbs []map[string]string, keepPronouns map[string]bool, db Database) (
 	verb map[string]string, pov, pronoun string) {
 
 	var povs []string
@@ -16,7 +16,7 @@ func ChooseVerb(
 		}
 	}
 
-    pronouns := GetPronouns("spanish.db","./data")
+	pronouns := db.GetPronouns()
 
 	idxVerb := rand.Int() % len(verbs)
 	idxPov := rand.Int() % len(povs)

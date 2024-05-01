@@ -66,9 +66,9 @@ func (m PerformanceModel) View() string {
 	}
 
 	applyStyling := func(childElement string) (formatted string) {
-		return lipgloss.NewStyle().
-			Render(childElement)
+		return lipgloss.NewStyle().Render(childElement)
 	}
+
 	helpView := helpStyle.Render(m.help.View(m.keys))
 
 	exportedText := lipgloss.NewStyle().

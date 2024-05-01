@@ -8,28 +8,29 @@ import (
 )
 
 type LanguageModel struct {
-	title    string
-	selected Item
-	fileMap  map[string]string
-	options  list.Model
+	title     string
+	selected  Item
+	fileMap   map[string]string
+	options   list.Model
+	databases map[string]utils.Database
 }
 
 func initialLanguageModel(directory string) *LanguageModel {
 
-	languages := utils.GetDatabases(directory)
+	databases := utils.GetDatabases(directory)
 
 	var items []list.Item
 	fileMap := make(map[string]string)
 
-	for _, language := range languages {
+	for _, database := range databases {
 
-		item := Item(language.ProperName)
+		item := Item(database.ProperName)
 		items = append(items, item)
 
-		fileMap[language.ProperName] = language.FileName
+		fileMap[database.ProperName] = database.Basename
 	}
 
-	height := len(languages)
+	height := len(databases)
 
 	options := list.New(items, itemDelegate{}, 0, height)
 	options.SetShowStatusBar(false)
@@ -39,10 +40,11 @@ func initialLanguageModel(directory string) *LanguageModel {
 	options.SetShowFilter(false)
 
 	model := LanguageModel{
-		title:    "Language",
-		options:  options,
-		selected: "",
-		fileMap:  fileMap,
+		title:     "Language",
+		options:   options,
+		selected:  "",
+		fileMap:   fileMap,
+		databases: databases,
 	}
 	return &model
 }

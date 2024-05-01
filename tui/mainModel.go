@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"conju/utils"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -20,6 +22,7 @@ type Game struct {
 }
 
 type MainModel struct {
+	config       utils.Config
 	width        int
 	height       int
 	state        mainSessionState
@@ -30,11 +33,16 @@ type MainModel struct {
 	count        int
 	loaded       bool
 	quitting     bool
+	selectedDb   utils.Database
 }
 
 func InitialMainModel() *MainModel {
+
+	config := utils.ReadConfig()
+
 	model := MainModel{
-		state: settingView,
+		state:  settingView,
+		config: config,
 	}
 	return &model
 }
@@ -50,7 +58,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		m.setting = NewSettingsModel(m.width)
+		m.setting = NewSettingsModel(m.width, m.config)
 		m.loaded = true
 		return m, tea.Batch(cmds...)
 	}
@@ -70,7 +78,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				tense:    settingModel.selectedTense,
 				duration: settingModel.selectedDuration,
 			}
-			m.game = *newGameModel(m.width, m.gameSettings)
+			m.selectedDb = settingModel.selectedDb
+			m.game = *newGameModel(m.selectedDb, m.width, m.gameSettings, m.config)
 			m.state = gameView
 		}
 

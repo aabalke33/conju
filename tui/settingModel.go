@@ -31,9 +31,9 @@ type SettingModel struct {
 	quitting         bool
 }
 
-func NewSettingsModel(width int) *SettingModel {
+func NewSettingsModel(width int, config utils.Config) *SettingModel {
 
-	language := initialLanguageModel("./data")
+	language := initialLanguageModel(config.DatabaseDirectory)
 	duration := initialDurationModel()
 	help := NewHelpModel()
 	help.Width = width
@@ -81,13 +81,8 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		if selectedItem != m.selectedLanguage {
 			m.selectedLanguage = selectedItem
-			m.selectedDb = utils.Database{
-				FileName:   newLanguageModel.fileMap[selectedItem],
-				ProperName: selectedItem,
-			}
-
+			m.selectedDb = newLanguageModel.databases[selectedItem]
 			m.tense = initialTenseModel(m.selectedDb)
-
 			m.state++
 		}
 
