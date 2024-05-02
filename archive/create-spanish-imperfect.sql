@@ -1,0 +1,29 @@
+-- CREATE TABLE imperfect (
+-- infinitive VARCHAR(64) primary key,
+-- meaning VARCHAR(128),
+-- first_single VARCHAR(64),
+-- first_plural VARCHAR(64),
+-- second_single VARCHAR(64),
+-- second_plural VARCHAR(64),
+-- third_single VARCHAR(64),
+-- third_plural VARCHAR(64));
+-- 
+-- INSERT INTO imperfect VALUES('hablar', 'to talk', 'hablaba', 'hablábamos', 'hablabas', 'hablabais', 'hablaba', 'hablaban');
+-- NSERT INTO imperfect VALUES('ir', 'to go', 'iba', 'íbamos', 'ibas', 'ibais', 'iba', 'iban');
+-- NSERT INTO imperfect VALUES('leer', 'to read', 'leía', 'leíamos', 'leías', 'leíais', 'leía', 'leían');
+--  INTO imperfect VALUES('llevar', 'to wear/to bring', 'llevaba', 'llevábamos', 'llevabas', 'llevabais', 'llevaba', 'llevaban');
+-- NSERT INTO imperfect VALUES('mirar', 'to look', 'miraba', 'mirábamos', 'mirabas', 'mirabais', 'miraba', 'miraban');
+-- NSERT INTO imperfect VALUES('montar', 'to get on', 'montaba', 'montábamos', 'montabas', 'montabais', 'montaba', 'montaban');
+-- NSERT INTO imperfect VALUES('ser', 'to be (permanent)', 'era', 'éramos', 'eras', 'erais', 'era', 'eran');
+-- NSERT INTO imperfect VALUES('ver', 'to see', 'veía', 'veíamos', 'veías', 'veíais', 'veía', 'veían');
+--  INTO imperfect VALUES('vivir', 'to live', 'vivía', 'vivíamos', 'vivías', 'vivíais', 'vivía', 'vivían');
+--  INTO imperfect VALUES('aprender', 'to learn', 'aprendía', 'aprendíamos', 'aprendías', 'aprendíais', 'aprendía', 'aprendían');
+--  INTO imperfect VALUES('asistir', 'to attend', 'asistía', 'asistíamos', 'asistías', 'asistíais', 'asistía', 'asistían');
+--  INTO imperfect VALUES('borrar', 'to erase', 'borraba', 'borrábamos', 'borrabas', 'borrabais', 'borraba', 'borraban');
+-- NSERT INTO imperfect VALUES('comer', 'to eat', 'comía', 'comíamos', 'comías', 'comíais', 'comía', 'comían');
+--  INTO imperfect VALUES('comprender', 'to understand', 'comprendía', 'comprendíamos', 'comprendías', 'comprendíais', 'comprendía', 'comprendían');
+--  INTO imperfect VALUES('correr', 'to run', 'corría', 'corríamos', 'corrías', 'corríais', 'corría', 'corrían');
+--  INTO imperfect VALUES('escribir', 'to write', 'escribía', 'escribíamos', 'escribías', 'escribíais', 'escribía', 'escribían');
+--  INTO imperfect VALUES('estar', 'to be (location)', 'estaba', 'estábamos', 'estabas', 'estabais', 'estaba', 'estaban');
+
+SELECT * FROM imperfect

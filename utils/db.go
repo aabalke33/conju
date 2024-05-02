@@ -12,10 +12,11 @@ import (
 )
 
 type Database struct {
-	ProperName string
-	LowerName  string
-	Directory  string
-	Basename   string
+	ProperName        string
+	LowerName         string
+	Directory         string
+	Basename          string
+	AvailablePronouns []string
 }
 
 func (d Database) QueryData(tense string) []map[string]string {
@@ -123,7 +124,17 @@ func (d Database) GetTenses() (tenses []string) {
 	return
 }
 
-func (d Database) GetPronouns() map[string][]string {
+func (d Database) GetPronouns(tense string, userSelectedPronouns []string) map[string][]string {
+
+	formatStringSlice := func(slice []string) string {
+		formattedStrings := make([]string, len(slice))
+
+		for i, pronoun := range slice {
+			formattedStrings[i] = fmt.Sprintf("'%s'", pronoun)
+		}
+
+		return s.Join(formattedStrings, ", ")
+	}
 
 	connStr := fmt.Sprintf("%s/%s", d.Directory, d.Basename)
 	db, err := sql.Open("sqlite3", connStr)
@@ -137,7 +148,13 @@ func (d Database) GetPronouns() map[string][]string {
 		panic("Could not ping db")
 	}
 
-	rows, err := db.Query("SELECT pronoun, conjugation FROM pronouns")
+	query := fmt.Sprintf(`SELECT pronoun, conjugation FROM pronouns 
+        WHERE conjugation IN (
+	    SELECT name AS conjugation FROM pragma_table_info('%s'))
+        AND conjugation IN (%s)`,
+		tense, formatStringSlice(userSelectedPronouns))
+
+	rows, err := db.Query(query)
 	if err != nil {
 		panic("Could not Query Pronouns from DB 1")
 	}

@@ -52,8 +52,6 @@ If you would like to contribute language databases, please do! Follow the templa
 outlined in the Data Storage section, and check the Spanish.db file for an example.
 
 ## Roadmap
-- Move user changeable values to config.json (ex. db directory, sound files, ffmpeg location)
-- Remove hardcoded Spanish language pronouns, will either add to dbs or make a separate file
 - Add Pronoun Setting/Menu Selection
 - Adaptive Color profiles depending on support
 - Add All Spanish Tenses

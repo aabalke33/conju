@@ -11,7 +11,19 @@
                 "second_single": true,
                 "second_plural": false,
                 "third_single": true,
-                "third_plural": true
+                "third_plural": true,
+                "first_single_positive": true,
+                "first_plural_positive": true,
+                "second_single_positive": true,
+                "second_plural_positive": false,
+                "third_single_positive": true,
+                "third_plural_positive": true,
+                "first_single_negative": true,
+                "first_plural_negative": true,
+                "second_single_negative": true,
+                "second_plural_negative": false,
+                "third_single_negative": true,
+                "third_plural_negative": true
             }
         }
     }

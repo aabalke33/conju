@@ -23,15 +23,16 @@ type GameModel struct {
 	keys       keyMap
 	selectedDb utils.Database
 	config     utils.Config
+	povs       []string
+	pronouns   map[string][]string
 }
 
 func newGameModel(selectedDb utils.Database, width int, game Game, config utils.Config) *GameModel {
 
-	timeout := time.Duration(game.duration) * time.Minute
-	timer := timer.NewWithInterval(timeout, time.Second)
+	timer := setupTimer(game.duration)
+	verbs, povs, pronouns := setupGame(selectedDb, config, game.tense)
+	verb, pov, pronoun := utils.ChooseVerb(verbs, pronouns)
 
-	verbs := selectedDb.QueryData(game.tense)
-	verb, pov, pronoun := setupRound(verbs, selectedDb, config)
 	round := initialRoundModel(verb, pov, pronoun, config)
 	help := NewHelpModel()
 	help.Width = width
@@ -47,6 +48,8 @@ func newGameModel(selectedDb utils.Database, width int, game Game, config utils.
 		keys:       gameKeys,
 		selectedDb: selectedDb,
 		config:     config,
+		povs:       povs,
+		pronouns:   pronouns,
 	}
 
 	return &model
@@ -75,7 +78,7 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			return m, tea.Quit
 		case "tab":
-			verb, pov, pronoun := setupRound(m.verbs, m.selectedDb, m.config)
+			verb, pov, pronoun := utils.ChooseVerb(m.verbs, m.pronouns)
 			m.round = initialRoundModel(verb, pov, pronoun, m.config)
 			return m, cmd
 		case "?":
@@ -101,7 +104,7 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if roundModel.pass {
 		m.count++
-		verb, pov, pronoun := setupRound(m.verbs, m.selectedDb, m.config)
+		verb, pov, pronoun := utils.ChooseVerb(m.verbs, m.pronouns)
 		m.round = *initialRoundModel(verb, pov, pronoun, m.config)
 		cmds = append(cmds, cmd)
 		return m, tea.Batch(cmds...)
@@ -140,23 +143,17 @@ func (m GameModel) View() string {
 	return applyStyling(output + "\n" + helpView)
 }
 
-func setupRound(
-	verbs []map[string]string,
-	selectedDb utils.Database,
-	config utils.Config) (
-	verb map[string]string,
-	pov, pronoun string) {
+func setupTimer(duration int) timer.Model {
+	timeout := time.Duration(duration) * time.Minute
+	timer := timer.NewWithInterval(timeout, time.Second)
+	return timer
+}
 
-	var povs []string
+func setupGame(selectedDb utils.Database, config utils.Config, tense string) (
+	[]map[string]string, []string, map[string][]string) {
 
+	verbs := selectedDb.QueryData(tense)
 	defaultPronouns := config.Languages[selectedDb.LowerName].DefaultConjugations
-
-	for pronoun, addPronoun := range defaultPronouns {
-		if addPronoun {
-			povs = append(povs, pronoun)
-		}
-	}
-
-	verb, pov, pronoun = utils.ChooseVerb(verbs, defaultPronouns, selectedDb)
-	return
+	povs, pronouns := utils.ChoosePronouns(defaultPronouns, selectedDb, tense)
+	return verbs, povs, pronouns
 }

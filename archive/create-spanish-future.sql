@@ -1,0 +1,41 @@
+-- CREATE TABLE future (
+-- infinitive VARCHAR(64) primary key,
+-- meaning VARCHAR(128),
+-- first_single VARCHAR(64),
+-- first_plural VARCHAR(64),
+-- second_single VARCHAR(64),
+-- second_plural VARCHAR(64),
+-- third_single VARCHAR(64),
+-- third_plural VARCHAR(64));
+-- 
+-- INSERT INTO future VALUES('llamar', 'to call/to name', 'llamaré', 'llamaremos', 'llamarás', 'llamaréis', 'llamará', 'llamarán');
+-- T INTO future VALUES('organizar', 'to organize', 'organizaré', 'organizaremos', 'organizarás', 'organizaréis', 'organizará', 'organizarán');
+-- T INTO future VALUES('poder', 'to be able to', 'podré', 'podremos', 'podrás', 'podréis', 'podrá', 'podrán');
+-- T INTO future VALUES('poner', 'to put', 'pondré', 'pondremos', 'pondrás', 'pondréis', 'pondrá', 'pondrán');
+-- T INTO future VALUES('querer', 'to want/to love', 'querré', 'querremos', 'querrás', 'querréis', 'querrá', 'querrán');
+-- T INTO future VALUES('recibir', 'to receive', 'recibiré', 'recibiremos', 'recibirás', 'recibiréis', 'recibirá', 'recibirán');
+-- T INTO future VALUES('saber', 'to know (how to)', 'sabré', 'sabremos', 'sabrás', 'sabréis', 'sabrá', 'sabrán');
+-- T INTO future VALUES('sacar', 'to take out', 'sacaré', 'sacaremos', 'sacarás', 'sacaréis', 'sacará', 'sacarán');
+-- T INTO future VALUES('salir', 'to depart', 'saldré', 'saldremos', 'saldrás', 'saldréis', 'saldrá', 'saldrán');
+-- T INTO future VALUES('ser', 'to be (permanent)', 'seré', 'seremos', 'serás', 'seréis', 'será', 'serán');
+-- T INTO future VALUES('tener', 'to have', 'tendré', 'tendremos', 'tendrás', 'tendréis', 'tendrá', 'tendrán');
+-- T INTO future VALUES('tocar', 'to touch/to play', 'tocaré', 'tocaremos', 'tocarás', 'tocaréis', 'tocará', 'tocarán');
+-- T INTO future VALUES('vender', 'to sell', 'venderé', 'venderemos', 'venderás', 'venderéis', 'venderá', 'venderán');
+-- T INTO future VALUES('venir', 'to come', 'vendré', 'vendremos', 'vendrás', 'vendréis', 'vendrá', 'vendrán');
+-- T INTO future VALUES('vivir', 'to live', 'viviré', 'viviremos', 'vivirás', 'viviréis', 'vivirá', 'vivirán');
+-- T INTO future VALUES('aprender', 'to learn', 'aprenderé', 'aprenderemos', 'aprenderás', 'aprenderéis', 'aprenderá', 'aprenderán');
+-- T INTO future VALUES('barrer', 'to sweep (broom)', 'barreré', 'barreremos', 'barrerás', 'barreréis', 'barrerá', 'barrerán');
+-- T INTO future VALUES('buscar', 'to look for', 'buscaré', 'buscaremos', 'buscarás', 'buscaréis', 'buscará', 'buscarán');
+-- T INTO future VALUES('comprender', 'to understand', 'comprenderé', 'comprenderemos', 'comprenderás', 'comprenderéis', 'comprenderá', 'comprenderán');
+-- T INTO future VALUES('correr', 'to run', 'correré', 'correremos', 'correrás', 'correréis', 'correrá', 'correrán');
+-- T INTO future VALUES('decir', 'to say', 'diré', 'diremos', 'dirás', 'diréis', 'dirá', 'dirán');
+-- T INTO future VALUES('escribir', 'to write', 'escribiré', 'escribiremos', 'escribirás', 'escribiréis', 'escribirá', 'escribirán');
+-- T INTO future VALUES('escuchar', 'to listen (to)', 'escucharé', 'escucharemos', 'escucharás', 'escucharéis', 'escuchará', 'escucharán');
+-- T INTO future VALUES('estar', 'to be (location)', 'estaré', 'estaremos', 'estarás', 'estaréis', 'estará', 'estarán');
+-- T INTO future VALUES('hablar', 'to talk', 'habré', 'habremos', 'habrás', 'habréis', 'habrá', 'habrán');
+-- T INTO future VALUES('haber', 'to have (helping verb)', 'hablaré', 'hablaremos', 'hablarás', 'hablaréis', 'hablará', 'hablarán');
+-- T INTO future VALUES('hacer', 'to do/to make', 'haré', 'haremos', 'harás', 'haréis', 'hará', 'harán');
+-- T INTO future VALUES('ir', 'to go', 'iré', 'iremos', 'irás', 'iréis', 'irá', 'irán');
+-- T INTO future VALUES('leer', 'to read', 'leeré', 'leeremos', 'leerás', 'leeréis', 'leerá', 'leerán');
+
+SELECT * FROM future
