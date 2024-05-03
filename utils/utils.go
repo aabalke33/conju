@@ -5,13 +5,13 @@ import (
 )
 
 func ChoosePronouns(
-	keepPronouns map[string]bool, db Database, tense string) (
+	DefaultPronouns map[string]bool, db Database, tense string) (
 	povs []string, pronouns map[string][]string) {
 
 	var userSelectedPronouns []string
 
-	for userPronoun, keepPronoun := range keepPronouns {
-		if keepPronoun {
+	for userPronoun, keep := range DefaultPronouns {
+		if keep {
 			userSelectedPronouns = append(userSelectedPronouns, userPronoun)
 		}
 	}

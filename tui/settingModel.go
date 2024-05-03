@@ -21,8 +21,8 @@ type SettingModel struct {
 	tense            tea.Model
 	duration         tea.Model
 	confirm          tea.Model
-	selectedLanguage string
 	selectedDb       utils.Database
+	selectedLanguage string
 	selectedTense    string
 	selectedDuration int
 	selectedConfirm  bool
@@ -133,29 +133,18 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case confirmView:
 		m.keys = confirmKeys
 		newConfirm, newCmd := m.confirm.Update(msg)
-		newConfirmModel, ok := newConfirm.(ConfirmModel)
+		confirmModel, ok := newConfirm.(ConfirmModel)
 
 		if !ok {
 			panic("Confirmation Model assertion failed")
 		}
 
-		if newConfirmModel.confirmed != m.selectedConfirm {
-			m.selectedConfirm = newConfirmModel.confirmed
+		if confirmModel.confirmed {
+			m.selectedConfirm = confirmModel.confirmed
 			m.state++
 		}
 
-		//May be able to move these
-		if newConfirmModel.language != m.selectedLanguage {
-			newConfirmModel.language = m.selectedLanguage
-		}
-		if newConfirmModel.tense != m.selectedTense {
-			newConfirmModel.tense = m.selectedTense
-		}
-		if newConfirmModel.duration != m.selectedDuration {
-			newConfirmModel.duration = m.selectedDuration
-		}
-
-		m.confirm = newConfirmModel
+		m.confirm = confirmModel
 		cmd = newCmd
 	}
 

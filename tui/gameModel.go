@@ -101,18 +101,16 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if !ok {
 		panic("Round Model Assertion Failed")
 	}
+	cmds = append(cmds, newCmd)
 
 	if roundModel.pass {
 		m.count++
 		verb, pov, pronoun := utils.ChooseVerb(m.verbs, m.pronouns)
 		m.round = *initialRoundModel(verb, pov, pronoun, m.config)
-		cmds = append(cmds, cmd)
 		return m, tea.Batch(cmds...)
 	}
 
 	m.round = roundModel
-	cmd = newCmd
-	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }
 
@@ -121,7 +119,9 @@ func (m GameModel) View() string {
 	var thirtySeconds int64 = 30_000_000
 
 	timerStyled := func() (formatted string) {
-		if m.timer.Timeout.Microseconds() < thirtySeconds {
+
+		timeRemaining := m.timer.Timeout.Microseconds()
+		if timeRemaining < thirtySeconds {
 			return lipgloss.NewStyle().
 				Foreground(lipgloss.Color("1")).
 				Render(m.timer.View())
@@ -132,15 +132,10 @@ func (m GameModel) View() string {
 
 	helpView := helpStyle.Render(m.help.View(m.keys))
 
-	applyStyling := func(childElement string) (formatted string) {
-
-		return lipgloss.NewStyle().Render(childElement)
-	}
-
 	output := fmt.Sprintf("%s\n%s\n%s\n%s\nCount %s",
 		m.language, m.tense, timerStyled(), m.round.View(), strconv.Itoa(m.count))
 
-	return applyStyling(output + "\n" + helpView)
+	return output + "\n" + helpView
 }
 
 func setupTimer(duration int) timer.Model {

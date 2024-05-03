@@ -150,7 +150,6 @@ func (m MainModel) View() string {
 			lipgloss.WithWhitespaceChars("言語"),
 			lipgloss.WithWhitespaceForeground(lipgloss.Color("8")),
 		)
-
 	}
 
 	switch m.state {
