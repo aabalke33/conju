@@ -10,6 +10,7 @@ type sessionState int
 
 const (
 	languageView sessionState = iota
+	kindView
 	tenseView
 	durationView
 	confirmView
@@ -18,11 +19,13 @@ const (
 type SettingModel struct {
 	state            sessionState
 	language         tea.Model
+	kind             tea.Model
 	tense            tea.Model
 	duration         tea.Model
 	confirm          tea.Model
 	selectedDb       utils.Database
 	selectedLanguage string
+	selectedKind     string
 	selectedTense    string
 	selectedDuration int
 	selectedConfirm  bool
@@ -34,6 +37,7 @@ type SettingModel struct {
 func NewSettingsModel(width int, config utils.Config) *SettingModel {
 
 	language := initialLanguageModel(config.DatabaseDirectory)
+	kind := initialKindModel()
 	duration := initialDurationModel()
 	help := NewHelpModel()
 	help.Width = width
@@ -41,6 +45,7 @@ func NewSettingsModel(width int, config utils.Config) *SettingModel {
 	model := SettingModel{
 		state:    languageView,
 		language: language,
+		kind:     kind,
 		duration: duration,
 		help:     help,
 		keys:     settingKeys,
@@ -82,11 +87,28 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if selectedItem != m.selectedLanguage {
 			m.selectedLanguage = selectedItem
 			m.selectedDb = newLanguageModel.databases[selectedItem]
-			m.tense = initialTenseModel(m.selectedDb)
 			m.state++
 		}
 
 		m.language = newLanguageModel
+		cmd = newCmd
+
+	case kindView:
+		m.keys = settingKeys
+		newKind, newCmd := m.kind.Update(msg)
+		newKindModel, ok := newKind.(KindModel)
+
+		if !ok {
+			panic("Kind Model assertion failed")
+		}
+
+		if newKindModel.selected != m.selectedKind {
+			m.selectedKind = newKindModel.selected
+			m.tense = initialTenseModel(m.selectedDb)
+			m.state++
+		}
+
+		m.kind = newKindModel
 		cmd = newCmd
 
 	case tenseView:
@@ -120,6 +142,7 @@ func (m SettingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.confirm = initialConfirmModel(
 				m.selectedLanguage,
+				m.selectedKind,
 				m.selectedTense,
 				m.selectedDuration,
 			)
@@ -165,6 +188,8 @@ func (m SettingModel) View() string {
 	switch m.state {
 	case languageView:
 		return applyStyling(m.language.View())
+	case kindView:
+		return applyStyling(m.kind.View())
 	case tenseView:
 		return applyStyling(m.tense.View())
 	case durationView:

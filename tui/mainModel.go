@@ -17,6 +17,7 @@ const (
 
 type Game struct {
 	language string
+	kind     string
 	tense    string
 	duration int
 }
@@ -75,6 +76,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if settingModel.selectedConfirm {
 			m.gameSettings = Game{
 				language: settingModel.selectedLanguage,
+				kind:     settingModel.selectedKind,
 				tense:    settingModel.selectedTense,
 				duration: settingModel.selectedDuration,
 			}

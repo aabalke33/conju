@@ -25,6 +25,7 @@ func initialPerformanceModel(width int, game Game, count int) *PerformanceModel 
 	exported := utils.Export(
 		utils.Dump{
 			Language: game.language,
+			Kind:     game.kind,
 			Tense:    game.tense,
 			Wpm:      wpm,
 		})
@@ -77,8 +78,8 @@ func (m PerformanceModel) View() string {
 		Render("Exported Score to conju.csv")
 
 	output := fmt.Sprintf(
-		"Completed.\n%s - %s Test.\n%d Minutes\n%d Answered\n%d Per Minute\n%s",
-		m.game.language, m.game.tense, m.game.duration, m.count, m.wpm, exportedText)
+		"Completed.\n%s - %s Test.\n%s\n%d Minutes\n%d Answered\n%d Per Minute\n%s",
+		m.game.language, m.game.kind, m.game.tense, m.game.duration, m.count, m.wpm, exportedText)
 
 	return applyStyling(output + "\n" + helpView)
 }

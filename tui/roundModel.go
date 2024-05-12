@@ -10,6 +10,7 @@ import (
 
 type RoundModel struct {
 	verb    map[string]string
+	kind    string
 	pov     string
 	pronoun string
 	pass    bool
@@ -18,7 +19,13 @@ type RoundModel struct {
 	config  utils.Config
 }
 
-func initialRoundModel(verb map[string]string, pov, pronoun string, config utils.Config) *RoundModel {
+func initialRoundModel(
+	verb map[string]string,
+	pov,
+	pronoun string,
+	config utils.Config,
+	kind string,
+) *RoundModel {
 
 	input := textinput.New()
 	input.Focus()
@@ -27,6 +34,7 @@ func initialRoundModel(verb map[string]string, pov, pronoun string, config utils
 
 	model := RoundModel{
 		verb:    verb,
+		kind:    kind,
 		pov:     pov,
 		pronoun: pronoun,
 		input:   input,
@@ -41,18 +49,36 @@ func (m RoundModel) Init() tea.Cmd {
 }
 
 func (m RoundModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+
+	handlePass := func() {
+		utils.PlayAudio("./utils/resources/pass.mp3", m.config)
+		m.pass = true
+	}
+	handleFail := func() {
+		utils.PlayAudio("./utils/resources/fail.mp3", m.config)
+		m.fail = true
+	}
+
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if key := msg.String(); key == "enter" {
-			if match := m.input.Value() == m.verb[m.pov]; match {
-				utils.PlayAudio("./utils/resources/pass.mp3", m.config)
-				m.pass = true
-			} else {
-				utils.PlayAudio("./utils/resources/fail.mp3", m.config)
-				m.fail = true
-				return m, cmd
+			switch m.kind {
+			case "Vocabulary":
+				if match := m.input.Value() == m.verb["infinitive"]; match {
+					handlePass()
+				} else {
+					handleFail()
+					return m, cmd
+				}
+			default:
+				if match := m.input.Value() == m.verb[m.pov]; match {
+					handlePass()
+				} else {
+					handleFail()
+					return m, cmd
+				}
 			}
 		}
 	}
@@ -81,6 +107,12 @@ func (m RoundModel) View() string {
 			Render(childElement)
 	}
 
-	output := fmt.Sprintf("\n%s %s\n", m.pronoun, m.verb["infinitive"])
-	return output + applyStyling(m.input.View())
+	switch m.kind {
+	case "Vocabulary":
+		output := fmt.Sprintf("\n%s\n", m.verb["meaning"])
+		return output + applyStyling(m.input.View())
+	default:
+		output := fmt.Sprintf("\n%s %s\n", m.pronoun, m.verb["infinitive"])
+		return output + applyStyling(m.input.View())
+	}
 }

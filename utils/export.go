@@ -8,6 +8,7 @@ import (
 
 type Dump struct {
 	Language string
+	Kind     string
 	Tense    string
 	Wpm      int
 }
@@ -19,9 +20,10 @@ func Export(data Dump) (exported bool) {
 	now := time.Now().Format(time.RFC3339)
 
 	dataStr := fmt.Sprintf(
-		"%s,%s,%s,%d",
+		"%s,%s,%s,%s,%d",
 		now,
 		data.Language,
+		data.Kind,
 		data.Tense,
 		data.Wpm,
 	)

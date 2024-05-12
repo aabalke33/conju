@@ -13,6 +13,7 @@ import (
 type GameModel struct {
 	verbs      []map[string]string
 	language   string
+	kind       string
 	tense      string
 	timer      timer.Model
 	round      tea.Model
@@ -33,13 +34,14 @@ func newGameModel(selectedDb utils.Database, width int, game Game, config utils.
 	verbs, povs, pronouns := setupGame(selectedDb, config, game.tense)
 	verb, pov, pronoun := utils.ChooseVerb(verbs, pronouns)
 
-	round := initialRoundModel(verb, pov, pronoun, config)
+	round := initialRoundModel(verb, pov, pronoun, config, game.kind)
 	help := NewHelpModel()
 	help.Width = width
 
 	model := GameModel{
 		verbs:      verbs,
 		language:   game.language,
+		kind:       game.kind,
 		tense:      game.tense,
 		timer:      timer,
 		round:      round,
@@ -79,7 +81,7 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "tab":
 			verb, pov, pronoun := utils.ChooseVerb(m.verbs, m.pronouns)
-			m.round = initialRoundModel(verb, pov, pronoun, m.config)
+			m.round = initialRoundModel(verb, pov, pronoun, m.config, m.kind)
 			return m, cmd
 		case "?":
 			m.help.ShowAll = !m.help.ShowAll
@@ -106,7 +108,7 @@ func (m GameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if roundModel.pass {
 		m.count++
 		verb, pov, pronoun := utils.ChooseVerb(m.verbs, m.pronouns)
-		m.round = *initialRoundModel(verb, pov, pronoun, m.config)
+		m.round = *initialRoundModel(verb, pov, pronoun, m.config, m.kind)
 		return m, tea.Batch(cmds...)
 	}
 

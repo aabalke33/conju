@@ -27,9 +27,11 @@ func ChooseVerb(
 
 	getRandomPOV := func(pronouns map[string][]string) string {
 		povs := make([]string, 0, len(pronouns))
+
 		for k := range pronouns {
 			povs = append(povs, k)
 		}
+
 		idxPov := rand.Int() % len(povs)
 		return povs[idxPov]
 	}
@@ -37,6 +39,14 @@ func ChooseVerb(
 	idxVerb := rand.Int() % len(verbs)
 
 	verb = verbs[idxVerb]
+
+    if len(pronouns) == 0 {
+        pronoun = ""
+        pov = ""
+
+        return verb, pov, pronoun
+    }
+
 	pov = getRandomPOV(pronouns)
 
 	idxPronoun := rand.Int() % len(pronouns[pov])

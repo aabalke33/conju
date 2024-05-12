@@ -12,13 +12,15 @@ import (
 type ConfirmModel struct {
 	confirmed bool
 	language  string
+	kind      string
 	tense     string
 	duration  int
 }
 
-func initialConfirmModel(language, tense string, duration int) *ConfirmModel {
+func initialConfirmModel(language, kind string, tense string, duration int) *ConfirmModel {
 	model := ConfirmModel{
 		language: language,
+		kind:     kind,
 		tense:    tense,
 		duration: duration,
 	}
@@ -47,6 +49,7 @@ func (m ConfirmModel) View() string {
 
 	rows := [][]string{
 		{"Language", m.language},
+		{"Kind", m.kind},
 		{"Tense", m.tense},
 		{"Duration", strconv.Itoa(m.duration) + " minutes"},
 	}
