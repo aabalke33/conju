@@ -5,6 +5,7 @@ assessments/games.
 
 Practice conjugating words in your desired language.
 Built with golang, ffmpeg, charm/bubbletea and sqlite
+![conju225](https://github.com/aabalke33/conju/assets/22086435/c16f0d6f-e83d-4581-a03a-37f77a5fdba3)
 
 ## Youtube Breakdown
 [Youtube Video](https://www.youtube.com/watch?v=fB5a8g0nMJY)
