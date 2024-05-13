@@ -40,12 +40,12 @@ func ChooseVerb(
 
 	verb = verbs[idxVerb]
 
-    if len(pronouns) == 0 {
-        pronoun = ""
-        pov = ""
+	if len(pronouns) == 0 {
+		pronoun = ""
+		pov = ""
 
-        return verb, pov, pronoun
-    }
+		return verb, pov, pronoun
+	}
 
 	pov = getRandomPOV(pronouns)
 
